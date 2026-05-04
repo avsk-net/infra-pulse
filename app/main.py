@@ -11,12 +11,13 @@ from .checker import check_port, check_ping
 app = FastAPI(
     title="Infra Pulse",
     description="""
-Infrastructure health-check API.
+Infrastructure Health-Check API.
 
 **Authentication**: pass your API key in the `X-API-Key` header.
 
 Built with FastAPI + Docker. CI/CD via GitHub Actions.
-Source: [github.com/YOUR_USERNAME/infra-pulse](https://github.com)
+
+Source: [github.com/avsk-net/infra-pulse](https://github.com)
     """,
     version=settings.app_version,
 )
