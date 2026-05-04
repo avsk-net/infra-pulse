@@ -8,11 +8,10 @@ on:
 
 env:
   REGISTRY:   ghcr.io
-  IMAGE_NAME: ${{avsk-net/infra-pulse }}
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
 
-  # ─── 1. Test ────────────────────────────────────────────────
   test:
     runs-on: ubuntu-latest
     steps:
@@ -29,9 +28,8 @@ jobs:
       - name: Run tests
         run: pytest tests/ -v
         env:
-          API_KEY: test-key-ci    # safe dummy key for CI tests
+          API_KEY: test-key-ci
 
-  # ─── 2. Build + push image ──────────────────────────────────
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -73,7 +71,6 @@ jobs:
           cache-from: type=gha
           cache-to:   type=gha,mode=max
 
-  # ─── 3. Deploy to VPS ───────────────────────────────────────
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -89,22 +86,15 @@ jobs:
           script: |
             set -euo pipefail
             cd /home/deploy/infra-pulse
-
-            # Login to GHCR and pull latest image
             echo "${{ secrets.GITHUB_TOKEN }}" \
               | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker pull ghcr.io/${{ github.repository }}:latest
-
-            # Deploy — zero-downtime rolling restart
             APP_VERSION=${{ needs.build.outputs.version }} \
               docker compose up -d --remove-orphans
-
-            # Wait for health check (up to 30 seconds)
             for i in $(seq 1 6); do
               STATUS=$(docker inspect --format='{{.State.Health.Status}}' infra-pulse 2>/dev/null || echo wait)
-              [ "$STATUS" = "healthy" ] && echo "✓ Deploy successful — $STATUS" && exit 0
-              echo "  waiting... ($STATUS)"
+              [ "$STATUS" = "healthy" ] && echo "Deploy successful" && exit 0
+              echo "waiting... ($STATUS)"
               sleep 5
             done
-            echo "✗ Health check timed out" && exit 1
-
+            echo "Health check timed out" && exit 1
