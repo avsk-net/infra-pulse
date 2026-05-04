@@ -5,11 +5,11 @@ and ICMP ping across any host. Built as a production-grade project
 to demonstrate containerization, CI/CD, and API design.
 
 ## Live demo
-https://infra-pulse.yourdomain.com/docs
+https://infra-pulse.lalonhobekotodine.sbs/docs
 
 ## Stack
 - **FastAPI** — async REST API with auto-generated Swagger docs
-- **Docker** — multi-stage build, non-root, minimal image (~70 MB)
+- **Docker** — multi-stage build, non-root, minimal image
 - **GitHub Actions** — test → build → push to GHCR → deploy
 - **Nginx** — reverse proxy with TLS (Let's Encrypt)
 - **pytest** — full test suite runs in CI before every deploy
